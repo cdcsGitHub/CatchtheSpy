@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Spy</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_create_join">CreateJoinActivity</string>
+    <string name="create">Create Game</string>
+    <string name="join">Join Game</string>
+    <string name="title_activity_join_game">JoinGameActivity</string>
+    <string name="title_activity_create_game">CreateGameActivity</string>
+    <string name="title_activity_game">GameActivity</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_tabs">TabsActivity</string>
+    <string name="title_activity_tab">TabActivity</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="title_activity_target">TargetActivity</string>
+
+</resources>
