@@ -1,5 +1,7 @@
 package com.example.spy;
 
+import org.json.JSONObject;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,7 +10,7 @@ import android.view.ViewGroup;
  
 public class TargetActivity extends Fragment {
  
-	private String serverMessage;
+	private JSONObject serverMessage;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {

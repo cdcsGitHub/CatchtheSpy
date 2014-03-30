@@ -1,14 +1,21 @@
 package com.example.spy;
 
+import java.util.ArrayList;
+
+import org.json.JSONObject;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
 
 public class JoinGameActivity extends Activity 
 {
-	String serverMessage;
+	private JSONObject serverMessage;
+	protected ArrayAdapter adapter;
+	final ArrayList<String> list = new ArrayList<String>();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{

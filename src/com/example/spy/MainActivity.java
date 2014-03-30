@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.view.Menu;
 
 public class MainActivity extends Activity 

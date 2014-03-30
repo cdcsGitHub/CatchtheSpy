@@ -1,5 +1,7 @@
 package com.example.spy;
 
+import org.json.JSONObject;
+
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -25,7 +27,7 @@ import android.view.ViewGroup;
 
 public class GameActivity extends Fragment 
 {
-	private String serverMessage;
+	private JSONObject serverMessage;
 	GoogleMap googleMap;
 	MapView mapView;
 	AlertDialog alertDialog;

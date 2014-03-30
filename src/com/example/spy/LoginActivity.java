@@ -1,5 +1,7 @@
 package com.example.spy;
 
+import org.json.JSONObject;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -15,6 +17,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import database.handlers.*;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -37,9 +41,10 @@ public class LoginActivity extends Activity
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
+	public DatabaseHandler db = new DatabaseHandler(this);
 	private UserLoginTask mAuthTask = null;
 	
-	private String serverMessage;
+	private JSONObject serverMessage;
 
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;

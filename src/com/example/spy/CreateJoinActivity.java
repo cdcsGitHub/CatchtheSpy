@@ -1,5 +1,7 @@
 package com.example.spy;
 
+import org.json.JSONObject;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +10,7 @@ import android.view.View;
 
 public class CreateJoinActivity extends Activity 
 {
-	private String serverMessage;
+	private JSONObject serverMessage;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
