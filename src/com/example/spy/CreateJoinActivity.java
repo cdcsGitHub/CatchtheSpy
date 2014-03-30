@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
 
-public class CreateJoinActivity extends Activity {
-
+public class CreateJoinActivity extends Activity 
+{
+	private String serverMessage;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{

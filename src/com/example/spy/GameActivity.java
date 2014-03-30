@@ -23,14 +23,16 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class GameActivity extends Fragment {
-
+public class GameActivity extends Fragment 
+{
+	private String serverMessage;
 	GoogleMap googleMap;
 	MapView mapView;
 	AlertDialog alertDialog;
 	AlertDialog.Builder alertDialogBuilder;
 
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+	{
 		View rootView = inflater.inflate(R.layout.activity_game, container, false);
 
 		googleMap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();

@@ -32,7 +32,6 @@ import android.widget.Button;
 public class RegisterActivity extends Activity {
 	private Uri mImageCaptureUri;
 	private ImageView mImageView;	
-
 	private static final int PICK_FROM_CAMERA = 1;
 	private static final int PICK_FROM_FILE = 2;
 
