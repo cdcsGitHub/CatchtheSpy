@@ -25,8 +25,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
  
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
-    private static final String KEY_NAME = "username";
-    private static final String KEY_PH_NO = "password";
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_PASSWORD = "password";
  
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -36,8 +36,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT,"
-                + KEY_PH_NO + " TEXT" + ")";
+                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_USERNAME + " TEXT,"
+                + KEY_PASSWORD + " TEXT" + ")";
         db.execSQL(CREATE_USER_TABLE);
     }
  
@@ -56,12 +56,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      */
  
     // Adding new user
-    void addContact(User user) {
+    public void addUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
  
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, user.getUserName()); // User Name
-        values.put(KEY_PH_NO, user.getPassword()); // User Phone
+        values.put(KEY_USERNAME, user.getUserName()); // User Name
+        values.put(KEY_PASSWORD, user.getPassword()); // User Phone
  
         // Inserting Row
         db.insert(TABLE_USER, null, values);
@@ -69,11 +69,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
  
     // Getting single user
-    User getContact(int id) {
+    public User getUser(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
  
         Cursor cursor = db.query(TABLE_USER, new String[] { KEY_ID,
-                KEY_NAME, KEY_PH_NO }, KEY_ID + "=?",
+        		KEY_USERNAME, KEY_PASSWORD }, KEY_ID + "=?",
                 new String[] { String.valueOf(id) }, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
@@ -114,8 +114,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
  
         ContentValues values = new ContentValues();
-        values.put(KEY_NAME, user.getUserName());
-        values.put(KEY_PH_NO, user.getPassword());
+        values.put(KEY_USERNAME, user.getUserName());
+        values.put(KEY_PASSWORD, user.getPassword());
  
         // updating row
         return db.update(TABLE_USER, values, KEY_ID + " = ?",
@@ -123,7 +123,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
  
     // Deleting single user
-    public void deleteContact(User user) {
+    public void deleteUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_USER, KEY_ID + " = ?",
                 new String[] { String.valueOf(user.getID()) });

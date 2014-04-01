@@ -1,5 +1,6 @@
 package com.example.spy;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.animation.Animator;
@@ -15,10 +16,12 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import database.handlers.*;
+import connections.server.*;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -31,7 +34,7 @@ public class LoginActivity extends Activity
 	 * TODO: remove after connecting to a real authentication system.
 	 */
 	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
+		"foo@example.com:hello", "bar@example.com:world" };
 
 	/**
 	 * The default email to populate the email field with.
@@ -41,11 +44,12 @@ public class LoginActivity extends Activity
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
+	private User user;
 	public DatabaseHandler db = new DatabaseHandler(this);
-	private UserLoginTask mAuthTask = null;
-	
 	private JSONObject serverMessage;
-
+	private Client client;
+	private CheckBox checkBox;
+	private UserLoginTask mAuthTask = null;
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
 	private String mPassword;
@@ -58,10 +62,14 @@ public class LoginActivity extends Activity
 	private TextView mLoginStatusMessageView;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) 
+	{
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_login);
+
+		serverMessage = new JSONObject();
+		checkBox = (CheckBox) findViewById(R.id.checkBox1);
 
 		// Set up the login form.
 		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
@@ -70,17 +78,20 @@ public class LoginActivity extends Activity
 
 		mPasswordView = (EditText) findViewById(R.id.password);
 		mPasswordView
-				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-					@Override
-					public boolean onEditorAction(TextView textView, int id,
-							KeyEvent keyEvent) {
-						if (id == R.id.login || id == EditorInfo.IME_NULL) {
-							attemptLogin();
-							return true;
-						}
-						return false;
-					}
-				});
+		.setOnEditorActionListener(new TextView.OnEditorActionListener() 
+		{
+			@Override
+			public boolean onEditorAction(TextView textView, int id,
+					KeyEvent keyEvent) 
+			{
+				if (id == R.id.login || id == EditorInfo.IME_NULL) 
+				{
+					attemptLogin();
+					return true;
+				}
+				return false;
+			}
+		});
 
 		mLoginFormView = findViewById(R.id.login_form);
 		mLoginStatusView = findViewById(R.id.login_status);
@@ -95,13 +106,14 @@ public class LoginActivity extends Activity
 					}
 				});
 	}
-	
+
 	public void register(View v)
 	{
 		startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
 	}
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) 
+	{
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.login, menu);
 		return true;
@@ -112,11 +124,30 @@ public class LoginActivity extends Activity
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin() {
-		if (mAuthTask != null) {
+	public void attemptLogin() 
+	{
+		if (mAuthTask != null) 
+		{
 			return;
 		}
 
+		else if(checkBox.isChecked())
+		{
+			user = db.getUser(1);
+			String userName = user.getUserName();
+			String password = user.getPassword();
+			try 
+			{
+				serverMessage.put("Username", userName);
+				serverMessage.put("Password", password);
+			} 
+			catch (JSONException e) 
+			{
+				e.printStackTrace();
+			}
+			client = new Client(serverMessage);
+			client.run();
+		}
 		// Reset errors.
 		mEmailView.setError(null);
 		mPasswordView.setError(null);
@@ -178,25 +209,25 @@ public class LoginActivity extends Activity
 
 			mLoginStatusView.setVisibility(View.VISIBLE);
 			mLoginStatusView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							mLoginStatusView.setVisibility(show ? View.VISIBLE
-									: View.GONE);
-						}
-					});
+			.alpha(show ? 1 : 0)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					mLoginStatusView.setVisibility(show ? View.VISIBLE
+							: View.GONE);
+				}
+			});
 
 			mLoginFormView.setVisibility(View.VISIBLE);
 			mLoginFormView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 0 : 1)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							mLoginFormView.setVisibility(show ? View.GONE
-									: View.VISIBLE);
-						}
-					});
+			.alpha(show ? 0 : 1)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					mLoginFormView.setVisibility(show ? View.GONE
+							: View.VISIBLE);
+				}
+			});
 		} else {
 			// The ViewPropertyAnimator APIs are not available, so simply show
 			// and hide the relevant UI components.
@@ -242,7 +273,7 @@ public class LoginActivity extends Activity
 				finish();
 			} else {
 				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
+				.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
 			}
 		}

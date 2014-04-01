@@ -2,6 +2,13 @@ package com.example.spy;
 
 import java.io.File;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import connections.server.Client;
+import database.handlers.DatabaseHandler;
+import database.handlers.User;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 
@@ -18,8 +25,10 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Button;
 
@@ -35,6 +44,12 @@ public class RegisterActivity extends Activity
 	private ImageView mImageView;	
 	private static final int PICK_FROM_CAMERA = 1;
 	private static final int PICK_FROM_FILE = 2;
+	private JSONObject serverMessage = new JSONObject();
+	private Client client;
+	private EditText userName;
+	private EditText password;
+	private EditText retypePassword;
+	private DatabaseHandler db = new DatabaseHandler(this);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
@@ -139,5 +154,31 @@ public class RegisterActivity extends Activity
 		cursor.moveToFirst();
 
 		return cursor.getString(column_index);
+	}
+	
+	public void registerUser(View v)
+	{
+		userName = (EditText) findViewById(R.id.editText1);
+		password = (EditText) findViewById(R.id.editText2);
+		retypePassword = (EditText) findViewById(R.id.EditText01);
+		
+		String name = userName.getText().toString();
+		String pass = password.getText().toString();
+		
+		try 
+		{
+			serverMessage.put("ActionNum", 0);
+			serverMessage.put("Username", name);
+			serverMessage.put("Password", pass);
+		
+		} 
+		catch (JSONException e) 
+		{
+			e.printStackTrace();
+		}
+		client = new Client(serverMessage);
+		client.connect();
+		db.addUser(new User(name, pass));
+		startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
 	}
 }

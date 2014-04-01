@@ -1,0 +1,7 @@
+0) Register
+1) Login
+2) Create Game
+3) Join Game
+4) Location Change
+5) Capture
+6) Captured
