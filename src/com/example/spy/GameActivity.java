@@ -55,7 +55,7 @@ public class GameActivity extends Fragment
 			{
 				googleMap.addMarker(new MarkerOptions()
 				.position(new LatLng(38.378756, -78.971553))
-				.title("Hello world"));
+				.title("Current Location"));
 
 				googleMap.setBuildingsEnabled(true);
 

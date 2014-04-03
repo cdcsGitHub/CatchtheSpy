@@ -6,16 +6,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import connections.server.Client;
-import database.handlers.DatabaseHandler;
-import database.handlers.User;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.net.Uri;
 
@@ -40,6 +40,7 @@ import android.widget.Button;
  */
 public class RegisterActivity extends Activity 
 {
+	public SharedPreferences sharedPrefs = null;
 	private Uri mImageCaptureUri;
 	private ImageView mImageView;	
 	private static final int PICK_FROM_CAMERA = 1;
@@ -49,15 +50,14 @@ public class RegisterActivity extends Activity
 	private EditText userName;
 	private EditText password;
 	private EditText retypePassword;
-	private DatabaseHandler db = new DatabaseHandler(this);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_register);
 
+		sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		final String [] items			= new String [] {"From Camera", "From Device"};				
 		ArrayAdapter<String> adapter	= new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
 		AlertDialog.Builder builder		= new AlertDialog.Builder(this);
@@ -165,9 +165,12 @@ public class RegisterActivity extends Activity
 		String name = userName.getText().toString();
 		String pass = password.getText().toString();
 		
+		sharedPrefs.edit().putString("username", name).commit();
+		sharedPrefs.edit().putString("password", pass).commit();
+		
 		try 
 		{
-			serverMessage.put("ActionNum", 0);
+			serverMessage.put("ActionNum", "0");
 			serverMessage.put("Username", name);
 			serverMessage.put("Password", pass);
 		
@@ -178,7 +181,6 @@ public class RegisterActivity extends Activity
 		}
 		client = new Client(serverMessage);
 		client.connect();
-		db.addUser(new User(name, pass));
 		startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
 	}
 }

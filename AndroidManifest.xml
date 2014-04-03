@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!--
      The following two permissions are not required to use
-     Google Maps Android API v2, but are recommended.
+     Google Maps Android API v2, but are recommended.
     -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -86,6 +86,14 @@
         <activity
             android:name="com.example.spy.TargetActivity"
             android:label="@string/title_activity_target" >
+        </activity>
+        <activity
+            android:name="com.example.spy.SettingsFragment"
+            android:label="@string/title_activity_settings_fragment" >
+        </activity>
+        <activity
+            android:name="com.example.spy.SettingsActivity"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 

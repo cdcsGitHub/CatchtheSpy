@@ -16,5 +16,11 @@
     <string name="title_activity_tab">TabActivity</string>
     <string name="title_activity_map">MapActivity</string>
     <string name="title_activity_target">TargetActivity</string>
+    <string name="title_activity_settings_fragment">SettingsFragment</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="pref_home_username_summary">Tap to change username</string>
+    <string name="pref_home_username_title">Username</string>
+    <string name="pref_home_password_summary">Tap to change username</string>
+    <string name="pref_home_password_title">Username</string>
 
 </resources>

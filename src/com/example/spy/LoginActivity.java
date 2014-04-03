@@ -20,7 +20,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import database.handlers.*;
 import connections.server.*;
 
 /**
@@ -44,11 +43,10 @@ public class LoginActivity extends Activity
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
-	private User user;
-	public DatabaseHandler db = new DatabaseHandler(this);
 	private JSONObject serverMessage;
 	private Client client;
 	private CheckBox checkBox;
+	
 	private UserLoginTask mAuthTask = null;
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
@@ -133,18 +131,18 @@ public class LoginActivity extends Activity
 
 		else if(checkBox.isChecked())
 		{
-			user = db.getUser(1);
-			String userName = user.getUserName();
-			String password = user.getPassword();
-			try 
-			{
-				serverMessage.put("Username", userName);
-				serverMessage.put("Password", password);
-			} 
-			catch (JSONException e) 
-			{
-				e.printStackTrace();
-			}
+//			user = db.getUser(1);
+//			String userName = user.getUserName();
+//			String password = user.getPassword();
+//			try 
+//			{
+//				serverMessage.put("Username", userName);
+//				serverMessage.put("Password", password);
+//			} 
+//			catch (JSONException e) 
+//			{
+//				e.printStackTrace();
+//			}
 			client = new Client(serverMessage);
 			client.run();
 		}
