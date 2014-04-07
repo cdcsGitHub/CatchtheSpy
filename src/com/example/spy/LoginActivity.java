@@ -8,9 +8,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,9 +45,12 @@ public class LoginActivity extends Activity
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
-	private JSONObject serverMessage;
-	private Client client;
-	private CheckBox checkBox;
+	public JSONObject serverMessage;
+	public Client client;
+	public CheckBox checkBox;
+	public SharedPreferences sharedPrefs = null;
+	private String username;
+	private String password;
 	
 	private UserLoginTask mAuthTask = null;
 	// Values for email and password at the time of the login attempt.
@@ -66,6 +71,7 @@ public class LoginActivity extends Activity
 
 		setContentView(R.layout.activity_login);
 
+		sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		serverMessage = new JSONObject();
 		checkBox = (CheckBox) findViewById(R.id.checkBox1);
 
@@ -131,20 +137,19 @@ public class LoginActivity extends Activity
 
 		else if(checkBox.isChecked())
 		{
-//			user = db.getUser(1);
-//			String userName = user.getUserName();
-//			String password = user.getPassword();
-//			try 
-//			{
-//				serverMessage.put("Username", userName);
-//				serverMessage.put("Password", password);
-//			} 
-//			catch (JSONException e) 
-//			{
-//				e.printStackTrace();
-//			}
+			username = sharedPrefs.getString("username", null);
+			password = sharedPrefs.getString("password", null);
+			try 
+			{
+				serverMessage.put("Username", username);
+				serverMessage.put("Password", password);
+			} 
+			catch (JSONException e) 
+			{
+				e.printStackTrace();
+			}
 			client = new Client(serverMessage);
-			client.run();
+			client.connect();
 		}
 		// Reset errors.
 		mEmailView.setError(null);

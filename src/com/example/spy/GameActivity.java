@@ -15,6 +15,12 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.SupportMapFragment;
+
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.app.AlertDialog;
@@ -25,24 +31,75 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class GameActivity extends Fragment 
+public class GameActivity extends Fragment implements LocationListener 
 {
 	private JSONObject serverMessage;
+	private Context mContext;
 	GoogleMap googleMap;
 	MapView mapView;
+
 	AlertDialog alertDialog;
 	AlertDialog.Builder alertDialogBuilder;
+	private LocationManager locationManager;
+	private String provider;
+	Criteria criteria;
+	protected Location location;
+	CameraPosition camera;
+	CameraUpdate cameraUpdate;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
 	{
+
 		View rootView = inflater.inflate(R.layout.activity_game, container, false);
 
 		googleMap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		CameraPosition cameraPosition = new CameraPosition.Builder()
-		.target(new LatLng(35.746512, -39.462891))      // Sets the center of the map to Mountain View
+
+		locationManager = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+		criteria = new Criteria();
+		provider = locationManager.getBestProvider(criteria, true);
+		location = locationManager.getLastKnownLocation(provider);
+
+		openingMapSequence();
+
+		return rootView;
+	}
+
+	public boolean onCreateOptionsMenu(Menu menu) 
+	{
+		// Inflate the menu; this adds items to the action bar if it is present.
+		//getMenuInflater().inflate(R.menu.game, menu);
+		return true;
+	}
+
+	public void onResume()
+	{
+		super.onResume();
+		googleMap.setMyLocationEnabled(true);
+		locationManager.requestLocationUpdates(provider, 100, 1, this);
+	}
+
+	public void onPause()
+	{
+		super.onPause();
+		locationManager.removeUpdates(this);
+	}
+
+	public void onLocationChanged(Location location)
+	{
+		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+		cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
+		googleMap.animateCamera(cameraUpdate);
+		locationManager.removeUpdates(this);
+		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
+	}
+
+	public void openingMapSequence()
+	{
+		camera = new CameraPosition.Builder()
+		.target(new LatLng(33.922132, -30.026016))      // Sets the center of the map to Mountain View
 		.zoom(0)                   // Sets the zoom
 		.build();                   // Creates a CameraPosition from the builder
-		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
 		CountDownTimer waitTimer = new CountDownTimer(5000, 1000) 
 		{
 
@@ -53,25 +110,25 @@ public class GameActivity extends Fragment
 
 			public void onFinish() 
 			{
-				googleMap.addMarker(new MarkerOptions()
-				.position(new LatLng(38.378756, -78.971553))
-				.title("Current Location"));
+//				googleMap.addMarker(new MarkerOptions()
+//				.position(new LatLng(location.getLatitude(), location.getLongitude()))
+//				.title("Current Location"));
 
 				googleMap.setBuildingsEnabled(true);
 
 				Circle circle = googleMap.addCircle(new CircleOptions()
-				.center(new LatLng(38.378756, -78.971553))
+				.center(new LatLng(location.getLatitude(), location.getLongitude()))
 				.radius(1609)
 				.strokeColor(Color.BLUE)
 				.fillColor(Color.TRANSPARENT)); 
 
-				CameraPosition cameraPosition = CameraPosition.builder()
-						.target(new LatLng(38.378756, -78.971553))     
+				camera = CameraPosition.builder()
+						.target(new LatLng(location.getLatitude(), location.getLongitude()))     
 						.zoom(14)                   
 						//.bearing(90)                
 						//.tilt(30)                  
 						.build();      
-				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
 			}
 		}.start();
 
@@ -86,6 +143,7 @@ public class GameActivity extends Fragment
 
 			public void onFinish() 
 			{
+
 				Circle target = googleMap.addCircle(new CircleOptions()
 				.center(new LatLng(38.381284, -78.967803))
 				.radius(30.48)
@@ -94,14 +152,33 @@ public class GameActivity extends Fragment
 				.fillColor(0x40ff0000));
 			}
 		}.start();
-
-		return rootView;
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu) 
+	public void updateTargetRadius(LatLng latlng)
 	{
-		// Inflate the menu; this adds items to the action bar if it is present.
-		//getMenuInflater().inflate(R.menu.game, menu);
-		return true;
+		Circle target = googleMap.addCircle(new CircleOptions()
+		.center(latlng)
+		.radius(30.48)
+		.strokeWidth(5)
+		.strokeColor(Color.RED)
+		.fillColor(0x40ff0000));
 	}
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+
+	}
+
 }
