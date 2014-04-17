@@ -148,8 +148,8 @@ public class LoginActivity extends Activity
 			{
 				e.printStackTrace();
 			}
-			client = new Client(serverMessage);
-			client.connect();
+//			client = new Client(serverMessage);
+//			client.connect();
 		}
 		// Reset errors.
 		mEmailView.setError(null);

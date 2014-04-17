@@ -4,10 +4,17 @@
         android:key="username"
         android:summary="@string/pref_home_username_summary"
         android:title="@string/pref_home_username_title" />
-
     <EditTextPreference
         android:key="password"
         android:summary="@string/pref_home_password_summary"
         android:title="@string/pref_home_password_title" />
+    <EditTextPreference
+        android:key="createResponse"
+        android:summary="Server response from create game"
+        android:title="Create Response" />
+       <EditTextPreference
+        android:key="joinResponse"
+        android:summary="Server response from join game"
+        android:title="Join Response" />
 
 </PreferenceScreen>

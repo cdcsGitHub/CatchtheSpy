@@ -1,5 +1,13 @@
 package com.example.spy;
 
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -16,25 +24,36 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import connections.server.Client;
+
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 public class GameActivity extends Fragment implements LocationListener 
 {
 	private JSONObject serverMessage;
-	private Context mContext;
+	private Client client;
+	
+	public SharedPreferences sharedPrefs = null;
+	
 	GoogleMap googleMap;
 	MapView mapView;
 
@@ -51,6 +70,7 @@ public class GameActivity extends Fragment implements LocationListener
 	{
 
 		View rootView = inflater.inflate(R.layout.activity_game, container, false);
+		//sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		googleMap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
@@ -86,6 +106,7 @@ public class GameActivity extends Fragment implements LocationListener
 
 	public void onLocationChanged(Location location)
 	{
+		
 		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 		cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
 		googleMap.animateCamera(cameraUpdate);
@@ -180,5 +201,137 @@ public class GameActivity extends Fragment implements LocationListener
 		// TODO Auto-generated method stub
 
 	}
+	
+//	public class createGame extends AsyncTask<Void, Void, String> 
+//	{
+//		@SuppressWarnings("deprecation")
+//		@Override
+//		protected String doInBackground(Void... params) 
+//		{
+//			username = sharedPrefs.getString("username", null);
+//			try 
+//			{
+//				toServerMessage.put("ActionNum", "2");
+//				toServerMessage.put("Username", username);
+//				toServerMessage.put("Latitude", lat);
+//				toServerMessage.put("Longitude", lon);
+//			} 
+//			catch (JSONException e) 
+//			{
+//				e.printStackTrace();
+//			}
+//			try {
+//				InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+//				Log.d("ClientActivity", "C: Connecting...");
+//				Socket socket = new Socket(serverAddr,SERVERPORT);
+//				connected = true;
+//				try {
+//					Log.d("ClientActivity", "C: Sending command.");
+//					PrintWriter out = new PrintWriter(new BufferedWriter(
+//							new OutputStreamWriter(socket.getOutputStream())),
+//							true);
+//					out.println(toServerMessage.toString());
+//					is = new DataInputStream(socket.getInputStream());
+//					String line = is.readLine();
+//					fromServerMessage = new JSONObject(line);
+//					serverResponse = fromServerMessage.getString("Response");
+//					sharedPrefs.edit().putString("createResponse", serverResponse).commit();
+//					serverResponse = fromServerMessage.getString("Response");
+//					Log.d("Server", fromServerMessage.toString());
+//					Log.d("ClientActivity", "C: Sent.");
+//				} catch (Exception e) {
+//					Log.e("ClientActivity", "S: Error", e);
+//				}
+//				socket.close();
+//				Log.d("ClientActivity", "C: Closed.");
+//				connected = false;
+//			} catch (Exception e) {
+//				Log.e("ClientActivity", "C: Error", e);
+//				connected = false;
+//			}
+//			return serverResponse;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(String result) 
+//		{
+//			
+//			if (result.equals("SUCCESS")) 
+//			{
+//				startActivity(new Intent(getApplicationContext(), TabActivity.class));
+//			}
+//			else 
+//			{
+//				Toast.makeText(getApplicationContext(), 
+//						"Error, could not create game", Toast.LENGTH_LONG).show();
+//			}
+//		}
+//	}
+//	
+//	public class joinGame extends AsyncTask<Void, Void, String> 
+//	{
+//		@SuppressWarnings("deprecation")
+//		@Override
+//		protected String doInBackground(Void... params) 
+//		{
+//			username = sharedPrefs.getString("username", null);
+//			try 
+//			{
+//				toServerMessage.put("ActionNum", "3");
+//				toServerMessage.put("Username", username);
+//				toServerMessage.put("Latitude", lat);
+//				toServerMessage.put("Longitude", lon);
+//			} 
+//			catch (JSONException e) 
+//			{
+//				e.printStackTrace();
+//			}
+//			try {
+//				InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+//				Log.d("ClientActivity", "C: Connecting...");
+//				Socket socket = new Socket(serverAddr,SERVERPORT);
+//				connected = true;
+//				try {
+//					Log.d("ClientActivity", "C: Sending command.");
+//					PrintWriter out = new PrintWriter(new BufferedWriter(
+//							new OutputStreamWriter(socket.getOutputStream())),
+//							true);
+//					out.println(toServerMessage.toString());
+//					is = new DataInputStream(socket.getInputStream());
+//					String line = is.readLine();
+//					fromServerMessage = new JSONObject(line);
+//					serverResponse = fromServerMessage.getString("Response");
+//					sharedPrefs.edit().putString("joinResponse", serverResponse).commit();
+//					serverResponse = fromServerMessage.getString("Response");
+//					Log.d("Server", fromServerMessage.toString());
+//					Log.d("ClientActivity", "C: Sent.");
+//				} catch (Exception e) {
+//					Log.e("ClientActivity", "S: Error", e);
+//				}
+//				socket.close();
+//				Log.d("ClientActivity", "C: Closed.");
+//				connected = false;
+//			} catch (Exception e) {
+//				Log.e("ClientActivity", "C: Error", e);
+//				connected = false;
+//			}
+//			return serverResponse;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(String result) 
+//		{
+//			
+//			if (result.equals("SUCCESS")) 
+//			{
+//				startActivity(new Intent(getApplicationContext(), JoinGameActivity.class));
+//			}
+//			else 
+//			{
+//				Toast.makeText(getApplicationContext(), 
+//						"Error, could not find games", Toast.LENGTH_LONG).show();
+//			}
+//		}
+//	}
 
 }

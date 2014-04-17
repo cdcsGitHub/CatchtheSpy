@@ -1,6 +1,12 @@
 package com.example.spy;
 
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +28,7 @@ import android.net.Uri;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 
@@ -31,6 +38,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * This example shows how to create and handle image picker in Android.
@@ -40,6 +48,14 @@ import android.widget.Button;
  */
 public class RegisterActivity extends Activity 
 {
+	public JSONObject toServerMessage;
+	public JSONObject fromServerMessage;
+	public static final int SERVERPORT = 9999;
+	private String serverIpAddress = "10.0.2.2";
+	@SuppressWarnings("unused")
+	private boolean connected = false;
+	private DataInputStream is = null;
+	
 	public SharedPreferences sharedPrefs = null;
 	private Uri mImageCaptureUri;
 	private ImageView mImageView;	
@@ -170,7 +186,7 @@ public class RegisterActivity extends Activity
 		
 		try 
 		{
-			serverMessage.put("ActionNum", "0");
+			serverMessage.put("ActionNum", "1");
 			serverMessage.put("Username", name);
 			serverMessage.put("Password", pass);
 		
@@ -183,4 +199,73 @@ public class RegisterActivity extends Activity
 		client.connect();
 		startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
 	}
+	
+	/**
+	 * 
+	 */
+//	public class createGame extends AsyncTask<Void, Void, String> 
+//	{
+//		@SuppressWarnings("deprecation")
+//		@Override
+//		protected String doInBackground(Void... params) 
+//		{
+//			username = sharedPrefs.getString("username", null);
+//			try 
+//			{
+//				toServerMessage.put("ActionNum", "2");
+//				toServerMessage.put("Username", username);
+//				toServerMessage.put("Latitude", lat);
+//				toServerMessage.put("Longitude", lon);
+//			} 
+//			catch (JSONException e) 
+//			{
+//				e.printStackTrace();
+//			}
+//			try {
+//				InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+//				Log.d("ClientActivity", "C: Connecting...");
+//				Socket socket = new Socket(serverAddr,SERVERPORT);
+//				connected = true;
+//				try {
+//					Log.d("ClientActivity", "C: Sending command.");
+//					PrintWriter out = new PrintWriter(new BufferedWriter(
+//							new OutputStreamWriter(socket.getOutputStream())),
+//							true);
+//					out.println(toServerMessage.toString());
+//					is = new DataInputStream(socket.getInputStream());
+//					String line = is.readLine();
+//					fromServerMessage = new JSONObject(line);
+//					serverResponse = fromServerMessage.getString("Response");
+//					sharedPrefs.edit().putString("createResponse", serverResponse).commit();
+//					serverResponse = fromServerMessage.getString("Response");
+//					Log.d("Server", fromServerMessage.toString());
+//					Log.d("ClientActivity", "C: Sent.");
+//				} catch (Exception e) {
+//					Log.e("ClientActivity", "S: Error", e);
+//				}
+//				socket.close();
+//				Log.d("ClientActivity", "C: Closed.");
+//				connected = false;
+//			} catch (Exception e) {
+//				Log.e("ClientActivity", "C: Error", e);
+//				connected = false;
+//			}
+//			return serverResponse;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(String result) 
+//		{
+//			
+//			if (result.equals("SUCCESS")) 
+//			{
+//				startActivity(new Intent(getApplicationContext(), TabActivity.class));
+//			}
+//			else 
+//			{
+//				Toast.makeText(getApplicationContext(), 
+//						"Error, could not create game", Toast.LENGTH_LONG).show();
+//			}
+//		}
+//	}
 }
