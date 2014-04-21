@@ -11,6 +11,8 @@ import java.net.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.spy.CreateJoinActivity.createGame;
+
 import connections.server.Client;
 
 import android.app.Activity;
@@ -52,6 +54,9 @@ public class RegisterActivity extends Activity
 	public JSONObject fromServerMessage;
 	public static final int SERVERPORT = 9999;
 	private String serverIpAddress = "10.0.2.2";
+	private String serverResponse;
+	private String name;
+	private String pass;
 	@SuppressWarnings("unused")
 	private boolean connected = false;
 	private DataInputStream is = null;
@@ -74,6 +79,8 @@ public class RegisterActivity extends Activity
 		setContentView(R.layout.activity_register);
 
 		sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		toServerMessage = new JSONObject();
+		fromServerMessage = new JSONObject();
 		final String [] items			= new String [] {"From Camera", "From Device"};				
 		ArrayAdapter<String> adapter	= new ArrayAdapter<String> (this, android.R.layout.select_dialog_item,items);
 		AlertDialog.Builder builder		= new AlertDialog.Builder(this);
@@ -174,98 +181,81 @@ public class RegisterActivity extends Activity
 	
 	public void registerUser(View v)
 	{
-		userName = (EditText) findViewById(R.id.editText1);
-		password = (EditText) findViewById(R.id.editText2);
-		retypePassword = (EditText) findViewById(R.id.EditText01);
-		
-		String name = userName.getText().toString();
-		String pass = password.getText().toString();
-		
-		sharedPrefs.edit().putString("username", name).commit();
-		sharedPrefs.edit().putString("password", pass).commit();
-		
-		try 
-		{
-			serverMessage.put("ActionNum", "1");
-			serverMessage.put("Username", name);
-			serverMessage.put("Password", pass);
-		
-		} 
-		catch (JSONException e) 
-		{
-			e.printStackTrace();
-		}
-		client = new Client(serverMessage);
-		client.connect();
-		startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
+		registerUser newUser = new registerUser();
+		newUser.execute();
 	}
 	
-	/**
-	 * 
-	 */
-//	public class createGame extends AsyncTask<Void, Void, String> 
-//	{
-//		@SuppressWarnings("deprecation")
-//		@Override
-//		protected String doInBackground(Void... params) 
-//		{
-//			username = sharedPrefs.getString("username", null);
-//			try 
-//			{
-//				toServerMessage.put("ActionNum", "2");
-//				toServerMessage.put("Username", username);
-//				toServerMessage.put("Latitude", lat);
-//				toServerMessage.put("Longitude", lon);
-//			} 
-//			catch (JSONException e) 
-//			{
-//				e.printStackTrace();
-//			}
-//			try {
-//				InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
-//				Log.d("ClientActivity", "C: Connecting...");
-//				Socket socket = new Socket(serverAddr,SERVERPORT);
-//				connected = true;
-//				try {
-//					Log.d("ClientActivity", "C: Sending command.");
-//					PrintWriter out = new PrintWriter(new BufferedWriter(
-//							new OutputStreamWriter(socket.getOutputStream())),
-//							true);
-//					out.println(toServerMessage.toString());
-//					is = new DataInputStream(socket.getInputStream());
-//					String line = is.readLine();
-//					fromServerMessage = new JSONObject(line);
-//					serverResponse = fromServerMessage.getString("Response");
-//					sharedPrefs.edit().putString("createResponse", serverResponse).commit();
-//					serverResponse = fromServerMessage.getString("Response");
-//					Log.d("Server", fromServerMessage.toString());
-//					Log.d("ClientActivity", "C: Sent.");
-//				} catch (Exception e) {
-//					Log.e("ClientActivity", "S: Error", e);
-//				}
-//				socket.close();
-//				Log.d("ClientActivity", "C: Closed.");
-//				connected = false;
-//			} catch (Exception e) {
-//				Log.e("ClientActivity", "C: Error", e);
-//				connected = false;
-//			}
-//			return serverResponse;
-//		}
-//
-//		@Override
-//		protected void onPostExecute(String result) 
-//		{
-//			
-//			if (result.equals("SUCCESS")) 
-//			{
-//				startActivity(new Intent(getApplicationContext(), TabActivity.class));
-//			}
-//			else 
-//			{
-//				Toast.makeText(getApplicationContext(), 
-//						"Error, could not create game", Toast.LENGTH_LONG).show();
-//			}
-//		}
-//	}
+	public class registerUser extends AsyncTask<Void, Void, String> 
+	{
+		@SuppressWarnings("deprecation")
+		@Override
+		protected String doInBackground(Void... params) 
+		{
+			userName = (EditText) findViewById(R.id.editText1);
+			password = (EditText) findViewById(R.id.editText2);
+			retypePassword = (EditText) findViewById(R.id.EditText01);
+			
+			name = userName.getText().toString();
+			pass = password.getText().toString();
+			
+			try 
+			{
+				toServerMessage.put("ActionNum", "1");
+				toServerMessage.put("Username", name);
+				toServerMessage.put("Password", pass);
+			
+			} 
+			catch (JSONException e) 
+			{
+				e.printStackTrace();
+			}
+			try {
+				InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+				Log.d("ClientActivity", "C: Connecting...");
+				Socket socket = new Socket(serverAddr,SERVERPORT);
+				connected = true;
+				try {
+					Log.d("ClientActivity", "C: Sending command.");
+					PrintWriter out = new PrintWriter(new BufferedWriter(
+							new OutputStreamWriter(socket.getOutputStream())),
+							true);
+					out.println(toServerMessage.toString());
+					is = new DataInputStream(socket.getInputStream());
+					String line = is.readLine();
+					fromServerMessage = new JSONObject(line);
+					serverResponse = fromServerMessage.getString("Response");
+					sharedPrefs.edit().putString("createResponse", serverResponse).commit();
+					serverResponse = fromServerMessage.getString("Response");
+					Log.d("Server", fromServerMessage.toString());
+					Log.d("ClientActivity", "C: Sent.");
+				} catch (Exception e) {
+					Log.e("ClientActivity", "S: Error", e);
+				}
+				socket.close();
+				Log.d("ClientActivity", "C: Closed.");
+				connected = false;
+			} catch (Exception e) {
+				Log.e("ClientActivity", "C: Error", e);
+				connected = false;
+			}
+			return serverResponse;
+		}
+
+		@Override
+		protected void onPostExecute(String result) 
+		{
+			
+			if (result.equals("REGISTERED")) 
+			{
+				sharedPrefs.edit().putString("username", name).commit();
+				sharedPrefs.edit().putString("password", pass).commit();
+				startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
+			}
+			else 
+			{
+				Toast.makeText(getApplicationContext(), 
+						"Registration Error", Toast.LENGTH_LONG).show();
+			}
+		}
+	}
 }

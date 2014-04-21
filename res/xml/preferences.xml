@@ -9,12 +9,28 @@
         android:summary="@string/pref_home_password_summary"
         android:title="@string/pref_home_password_title" />
     <EditTextPreference
+        android:key="login"
+        android:summary="Server response from login"
+        android:title="Login Response" />
+     <EditTextPreference
+        android:key="register"
+        android:summary="Server response from register"
+        android:title="Register Response" />
+    <EditTextPreference
         android:key="createResponse"
         android:summary="Server response from create game"
         android:title="Create Response" />
-       <EditTextPreference
+    <EditTextPreference
         android:key="joinResponse"
         android:summary="Server response from join game"
         android:title="Join Response" />
+   	<EditTextPreference
+        android:key="updateLocationResponse"
+        android:summary="Server response from update location"
+        android:title="Update Location Response" />
+	<EditTextPreference
+        android:key="attemptCapture"
+        android:summary="Server response from attempt capture"
+        android:title="Attempt Capture" />
 
 </PreferenceScreen>
