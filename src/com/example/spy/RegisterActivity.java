@@ -53,7 +53,7 @@ public class RegisterActivity extends Activity
 	public JSONObject toServerMessage;
 	public JSONObject fromServerMessage;
 	public static final int SERVERPORT = 9999;
-	private String serverIpAddress = "10.0.2.2";
+	private String serverIpAddress = "68.57.74.253";
 	private String serverResponse;
 	private String name;
 	private String pass;

@@ -35,7 +35,7 @@ public class CreateJoinActivity extends Activity implements LocationListener
 	public JSONObject toServerMessage;
 	public JSONObject fromServerMessage;
 	public static final int SERVERPORT = 9999;
-	private String serverIpAddress = "10.0.2.2";
+	private String serverIpAddress = "68.57.74.253";
 	@SuppressWarnings("unused")
 	private boolean connected = false;
 	private DataInputStream is = null;
@@ -73,6 +73,7 @@ public class CreateJoinActivity extends Activity implements LocationListener
 		toServerMessage = new JSONObject();
 		provider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(provider);
+		onLocationChanged(location);
 	}
 
 	@Override
@@ -149,8 +150,10 @@ public class CreateJoinActivity extends Activity implements LocationListener
 			{
 				toServerMessage.put("ActionNum", "2");
 				toServerMessage.put("Username", username);
-				toServerMessage.put("Latitude", lat);
-				toServerMessage.put("Longitude", lon);
+				toServerMessage.put("Latitude", String.valueOf(lat));
+				toServerMessage.put("Longitude", String.valueOf(lon));
+				toServerMessage.put("userLat", String.valueOf(lat));
+				toServerMessage.put("userLon", String.valueOf(lon));
 			} 
 			catch (JSONException e) 
 			{

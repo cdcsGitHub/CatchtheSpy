@@ -1,5 +1,12 @@
 package com.example.spy;
 
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -31,13 +39,6 @@ import connections.server.*;
 public class LoginActivity extends Activity 
 {
 	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-		"foo@example.com:hello", "bar@example.com:world" };
-
-	/**
 	 * The default email to populate the email field with.
 	 */
 	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
@@ -51,7 +52,17 @@ public class LoginActivity extends Activity
 	public SharedPreferences sharedPrefs = null;
 	private String username;
 	private String password;
-	
+
+	public JSONObject toServerMessage;
+	public JSONObject fromServerMessage;
+	public static final int SERVERPORT = 9999;
+	private String serverIpAddress = "68.57.74.253";
+	private String serverResponse;
+	private String userName;
+	@SuppressWarnings("unused")
+	private boolean connected = false;
+	private DataInputStream is = null;
+
 	private UserLoginTask mAuthTask = null;
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
@@ -74,6 +85,8 @@ public class LoginActivity extends Activity
 		sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		serverMessage = new JSONObject();
 		checkBox = (CheckBox) findViewById(R.id.checkBox1);
+		toServerMessage = new JSONObject();
+		fromServerMessage = new JSONObject();
 
 		// Set up the login form.
 		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
@@ -105,10 +118,23 @@ public class LoginActivity extends Activity
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						//attemptLogin();
-						startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
+						attemptLogin();
 					}
 				});
+		if(checkBox.isChecked())
+		{
+			username = sharedPrefs.getString("username", null);
+			password = sharedPrefs.getString("password", null);
+			try 
+			{
+				serverMessage.put("Username", username);
+				serverMessage.put("Password", password);
+			} 
+			catch (JSONException e) 
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public void register(View v)
@@ -133,23 +159,6 @@ public class LoginActivity extends Activity
 		if (mAuthTask != null) 
 		{
 			return;
-		}
-
-		else if(checkBox.isChecked())
-		{
-			username = sharedPrefs.getString("username", null);
-			password = sharedPrefs.getString("password", null);
-			try 
-			{
-				serverMessage.put("Username", username);
-				serverMessage.put("Password", password);
-			} 
-			catch (JSONException e) 
-			{
-				e.printStackTrace();
-			}
-//			client = new Client(serverMessage);
-//			client.connect();
 		}
 		// Reset errors.
 		mEmailView.setError(null);
@@ -178,10 +187,11 @@ public class LoginActivity extends Activity
 			mEmailView.setError(getString(R.string.error_field_required));
 			focusView = mEmailView;
 			cancel = true;
-		} else if (!mEmail.contains("@")) {
-			mEmailView.setError(getString(R.string.error_invalid_email));
-			focusView = mEmailView;
-			cancel = true;
+		} 
+		else if (!mEmail.contains("@")) {
+			//				mEmailView.setError(getString(R.string.error_invalid_email));
+			//				focusView = mEmailView;
+			//				cancel = true;
 		}
 
 		if (cancel) {
@@ -197,6 +207,7 @@ public class LoginActivity extends Activity
 			mAuthTask.execute((Void) null);
 		}
 	}
+
 
 	/**
 	 * Shows the progress UI and hides the login form.
@@ -243,38 +254,68 @@ public class LoginActivity extends Activity
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserLoginTask extends AsyncTask<Void, Void, String> {
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected String doInBackground(Void... params) {
 			// TODO: attempt authentication against a network service.
+			userName = mEmailView.getText().toString();
+			password = mPassword.toString();
+			//retypePassword = (EditText) findViewById(R.id.EditText01);
 
+			try 
+			{
+				toServerMessage.put("ActionNum", "0");
+				toServerMessage.put("Username", userName);
+				toServerMessage.put("Password", password);
+
+			} 
+			catch (JSONException e) 
+			{
+				e.printStackTrace();
+			}
 			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				return false;
-			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
+				InetAddress serverAddr = InetAddress.getByName(serverIpAddress);
+				Log.d("ClientActivity", "C: Connecting...");
+				Socket socket = new Socket(serverAddr,SERVERPORT);
+				connected = true;
+				try {
+					Log.d("ClientActivity", "C: Sending command.");
+					PrintWriter out = new PrintWriter(new BufferedWriter(
+							new OutputStreamWriter(socket.getOutputStream())),
+							true);
+					out.println(toServerMessage.toString());
+					is = new DataInputStream(socket.getInputStream());
+					String line = is.readLine();
+					fromServerMessage = new JSONObject(line);
+					serverResponse = fromServerMessage.getString("Response");
+					sharedPrefs.edit().putString("createResponse", serverResponse).commit();
+					serverResponse = fromServerMessage.getString("Response");
+					Log.d("Server", fromServerMessage.toString());
+					Log.d("ClientActivity", "C: Sent.");
+				} catch (Exception e) {
+					Log.e("ClientActivity", "S: Error", e);
 				}
+				socket.close();
+				Log.d("ClientActivity", "C: Closed.");
+				connected = false;
+			} catch (Exception e) {
+				Log.e("ClientActivity", "C: Error", e);
+				connected = false;
 			}
+			return serverResponse;
 
-			// TODO: register the new account here.
-			return true;
 		}
 
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		protected void onPostExecute(final String success) {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (success) {
-				finish();
-			} else {
+			if (success .equals("SUCCESS")) {
+				startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
+			} 
+			else 
+			{
 				mPasswordView
 				.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
@@ -282,7 +323,8 @@ public class LoginActivity extends Activity
 		}
 
 		@Override
-		protected void onCancelled() {
+		protected void onCancelled() 
+		{
 			mAuthTask = null;
 			showProgress(false);
 		}
