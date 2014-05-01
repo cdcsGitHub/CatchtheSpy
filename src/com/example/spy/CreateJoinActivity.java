@@ -36,6 +36,7 @@ public class CreateJoinActivity extends Activity implements LocationListener
 	public JSONObject fromServerMessage;
 	public static final int SERVERPORT = 9999;
 	private String serverIpAddress = "68.57.74.253";
+	//private String serverIpAddress = "147.138.43.128";
 	@SuppressWarnings("unused")
 	private boolean connected = false;
 	private DataInputStream is = null;

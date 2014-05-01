@@ -57,6 +57,7 @@ public class LoginActivity extends Activity
 	public JSONObject fromServerMessage;
 	public static final int SERVERPORT = 9999;
 	private String serverIpAddress = "68.57.74.253";
+	//private String serverIpAddress = "147.138.43.128";
 	private String serverResponse;
 	private String userName;
 	@SuppressWarnings("unused")
@@ -256,8 +257,8 @@ public class LoginActivity extends Activity
 	 */
 	public class UserLoginTask extends AsyncTask<Void, Void, String> {
 		@Override
-		protected String doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
+		protected String doInBackground(Void... params) 
+		{
 			userName = mEmailView.getText().toString();
 			password = mPassword.toString();
 			//retypePassword = (EditText) findViewById(R.id.EditText01);
@@ -267,7 +268,6 @@ public class LoginActivity extends Activity
 				toServerMessage.put("ActionNum", "0");
 				toServerMessage.put("Username", userName);
 				toServerMessage.put("Password", password);
-
 			} 
 			catch (JSONException e) 
 			{
@@ -311,7 +311,7 @@ public class LoginActivity extends Activity
 			mAuthTask = null;
 			showProgress(false);
 
-			if (success .equals("SUCCESS")) {
+			if (success.equals("SUCCESS")) {
 				startActivity(new Intent(getApplicationContext(), CreateJoinActivity.class));
 			} 
 			else 
