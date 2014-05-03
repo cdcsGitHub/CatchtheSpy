@@ -12,7 +12,7 @@
         android:key="login"
         android:summary="Server response from login"
         android:title="Login Response" />
-     <EditTextPreference
+    <EditTextPreference
         android:key="register"
         android:summary="Server response from register"
         android:title="Register Response" />
@@ -21,14 +21,18 @@
         android:summary="Server response from create game"
         android:title="Create Response" />
     <EditTextPreference
-        android:key="joinResponse"
+        android:key="joinLat"
         android:summary="Server response from join game"
-        android:title="Join Response" />
-   	<EditTextPreference
+        android:title="Join Lat" />
+    <EditTextPreference
+        android:key="joinLon"
+        android:summary="Server response from join game"
+        android:title="Join Lon" />
+    <EditTextPreference
         android:key="updateLocationResponse"
         android:summary="Server response from update location"
         android:title="Update Location Response" />
-	<EditTextPreference
+    <EditTextPreference
         android:key="attemptCapture"
         android:summary="Server response from attempt capture"
         android:title="Attempt Capture" />

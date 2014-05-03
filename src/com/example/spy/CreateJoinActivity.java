@@ -40,21 +40,22 @@ public class CreateJoinActivity extends Activity implements LocationListener
 	@SuppressWarnings("unused")
 	private boolean connected = false;
 	private DataInputStream is = null;
-	
+
 	public SharedPreferences sharedPrefs = null;
 	private String username;
 	private String provider;
 	private String serverResponse;
 	private double lat;
 	private double lon;
-	
+
 	protected LocationManager locationManager;
 	protected LocationListener locationLisener;
 	protected Location location;
 	protected Context context;
 	protected Criteria criteria;
 
-	
+	public Intent intent;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -195,10 +196,13 @@ public class CreateJoinActivity extends Activity implements LocationListener
 		@Override
 		protected void onPostExecute(String result) 
 		{
-			
+
 			if (result.equals("SUCCESS")) 
 			{
-				startActivity(new Intent(getApplicationContext(), TabActivity.class));
+				intent = new Intent(getApplicationContext(), TabActivity.class);
+				intent.putExtra("Game", "Create");//Send url to be saved to Bookmarks
+				startActivity(intent);	
+				//startActivity(new Intent(getApplicationContext(), TabActivity.class));
 			}
 			else 
 			{
@@ -207,7 +211,7 @@ public class CreateJoinActivity extends Activity implements LocationListener
 			}
 		}
 	}
-	
+
 	public class joinGame extends AsyncTask<Void, Void, String> 
 	{
 		@SuppressWarnings("deprecation")
@@ -219,8 +223,8 @@ public class CreateJoinActivity extends Activity implements LocationListener
 			{
 				toServerMessage.put("ActionNum", "3");
 				toServerMessage.put("Username", username);
-				toServerMessage.put("Latitude", lat);
-				toServerMessage.put("Longitude", lon);
+				toServerMessage.put("Latitude", Double.toString(lat));
+				toServerMessage.put("Longitude", Double.toString(lon));
 			} 
 			catch (JSONException e) 
 			{
@@ -261,10 +265,27 @@ public class CreateJoinActivity extends Activity implements LocationListener
 		@Override
 		protected void onPostExecute(String result) 
 		{
-			
+
 			if (result.equals("SUCCESS")) 
 			{
-				startActivity(new Intent(getApplicationContext(), JoinGameActivity.class));
+				String gameLat = null;
+				String gameLon = null;
+				try 
+				{
+					gameLat = fromServerMessage.getString("gameLat");
+					gameLon = fromServerMessage.getString("gameLon");
+				} 
+				catch (JSONException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				sharedPrefs.edit().putString("joinLat", gameLat).commit();
+				sharedPrefs.edit().putString("joinLon", gameLon).commit();
+				intent = new Intent(getApplicationContext(), TabActivity.class);
+				intent.putExtra("Game", "Join");//Send url to be saved to Bookmarks
+				startActivity(intent);	
+				//startActivity(new Intent(getApplicationContext(), JoinGameActivity.class));
 			}
 			else 
 			{

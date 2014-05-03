@@ -70,7 +70,7 @@ public class GameActivity extends Fragment implements LocationListener, Location
 	private String username;
 	public String serverResponse;
 
-	private final int minTime = 10000;
+	private final int minTime = 5000;
 	private final int minDistance = 1;   
 
 	private GoogleMap googleMap;
@@ -91,6 +91,9 @@ public class GameActivity extends Fragment implements LocationListener, Location
 	{
 
 		View rootView = inflater.inflate(R.layout.activity_game, container, false);
+		
+		Intent intent = getActivity().getIntent();
+		String text = intent.getStringExtra("Game");
 
 		googleMap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		googleMap.setBuildingsEnabled(true);
@@ -107,7 +110,18 @@ public class GameActivity extends Fragment implements LocationListener, Location
 		sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		toServerMessage = new JSONObject();
 		fromServerMessage = new JSONObject();
-		openingMapSequence();
+		
+		if(text.equals("Create"))
+		{
+			openingMapSequence1();
+		}
+		
+		else
+		{
+			String joinLat = sharedPrefs.getString("joinLat", null);
+			String joinLon = sharedPrefs.getString("joinLon", null);
+			openingMapSequence2(Double.parseDouble(joinLat), Double.parseDouble(joinLon));
+		}
 
 		return rootView;
 	}
@@ -176,7 +190,7 @@ public class GameActivity extends Fragment implements LocationListener, Location
 		provider = locationManager.getBestProvider(criteria, true);
 	}
 	
-	public void openingMapSequence()
+	public void openingMapSequence1()
 	{
 		camera = new CameraPosition.Builder()
 		.target(new LatLng(33.922132, -30.026016))      // Sets the center of the map to Mountain View
@@ -232,6 +246,62 @@ public class GameActivity extends Fragment implements LocationListener, Location
 			}
 		}.start();
 	}
+	
+	public void openingMapSequence2(final double gameLat, final double gameLon)
+	{
+		camera = new CameraPosition.Builder()
+		.target(new LatLng(33.922132, -30.026016))      // Sets the center of the map to Mountain View
+		.zoom(0)                   // Sets the zoom
+		.build();                   // Creates a CameraPosition from the builder
+		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
+		CountDownTimer waitTimer = new CountDownTimer(5000, 1000) 
+		{
+
+			public void onTick(long millisUntilFinished) 
+			{
+
+			}
+
+			public void onFinish() 
+			{
+				googleMap.setBuildingsEnabled(true);
+
+				Circle circle = googleMap.addCircle(new CircleOptions()
+				.center(new LatLng(gameLat, gameLon))
+				.radius(1609)
+				.strokeColor(Color.BLUE)
+				.fillColor(Color.TRANSPARENT)); 
+
+				camera = CameraPosition.builder()
+						.target(new LatLng(location.getLatitude(), location.getLongitude()))     
+						.zoom(14)                   
+						//.bearing(90)                
+						//.tilt(30)                  
+						.build();      
+				googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camera));
+			}
+		}.start();
+
+		CountDownTimer targetTimer = new CountDownTimer(10000, 1000) 
+		{
+
+			public void onTick(long millisUntilFinished) 
+			{
+				//called every 300 milliseconds, which could be used to
+				//display some crude animation
+			}
+
+			public void onFinish() 
+			{
+//				Circle target = googleMap.addCircle(new CircleOptions()
+//				.center(new LatLng(38.341163, -78.797684))
+//				.radius(30.48)
+//				.strokeWidth(5)
+//				.strokeColor(Color.RED)
+//				.fillColor(0x40ff0000));
+			}
+		}.start();
+	}
 
 	public void updateTargetRadius(LatLng latlng)
 	{
@@ -260,7 +330,7 @@ public class GameActivity extends Fragment implements LocationListener, Location
 	{
 
 	}
-
+	
 	public class updateUserLocation extends AsyncTask<Void, Void, String> 
 	{
 		@SuppressWarnings("deprecation")
@@ -324,7 +394,7 @@ public class GameActivity extends Fragment implements LocationListener, Location
 			{
 				alertDialog = new AlertDialog.Builder(getActivity()).create();  
 				alertDialog.setTitle("CAPTURE TARGET");  
-				alertDialog.setMessage("00:10");
+				alertDialog.setMessage("00:05");
 				alertDialog.show();   
 
 				new CountDownTimer(5000, 1000) 
@@ -352,6 +422,10 @@ public class GameActivity extends Fragment implements LocationListener, Location
 				
 				escape = new escapeCapture();
 				escape.execute();
+			}
+			else if(result.equals("TARGETFOUND"))
+			{
+				
 			}
 			else 
 			{
