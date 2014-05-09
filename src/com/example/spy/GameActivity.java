@@ -61,6 +61,10 @@ public class GameActivity extends Fragment implements LocationListener, Location
 	private DataInputStream is = null;
 	private double lat;
 	private double lon;
+	private boolean hasTarget = false;
+	private boolean hasCaptor = false;
+	private String tLat = null;
+	private String tLon = null;
 	
 	private updateUserLocation update;
 	private attemptCapture attempt;
@@ -237,12 +241,12 @@ public class GameActivity extends Fragment implements LocationListener, Location
 			public void onFinish() 
 			{
 
-				Circle target = googleMap.addCircle(new CircleOptions()
-				.center(new LatLng(38.341163, -78.797684))
-				.radius(30.48)
-				.strokeWidth(5)
-				.strokeColor(Color.RED)
-				.fillColor(0x40ff0000));
+//				Circle target = googleMap.addCircle(new CircleOptions()
+//				.center(new LatLng(38.341163, -78.797684))
+//				.radius(30.48)
+//				.strokeWidth(5)
+//				.strokeColor(Color.RED)
+//				.fillColor(0x40ff0000));
 			}
 		}.start();
 	}
@@ -303,10 +307,10 @@ public class GameActivity extends Fragment implements LocationListener, Location
 		}.start();
 	}
 
-	public void updateTargetRadius(LatLng latlng)
+	public void updateTargetRadius(final double tLat, final double tLon)
 	{
 		Circle target = googleMap.addCircle(new CircleOptions()
-		.center(latlng)
+		.center(new LatLng(tLat, tLon))
 		.radius(30.48)
 		.strokeWidth(5)
 		.strokeColor(Color.RED)
@@ -384,14 +388,30 @@ public class GameActivity extends Fragment implements LocationListener, Location
 		@Override
 		protected void onPostExecute(String result) 
 		{
-
-			if (result.equals("SUCCESS")) 
+			try 
+			{
+				tLat = fromServerMessage.getString("tLat");
+				tLon = fromServerMessage.getString("tLon");
+			} 
+			catch (JSONException e) 
+			{
+				e.printStackTrace();
+			}
+			
+			if (result.equals("SUCCESS") && tLat.equals("N/A") && tLon.equals("N/A")) 
 			{
 				Toast.makeText(getActivity().getApplicationContext(), 
 						"Location Update", Toast.LENGTH_LONG).show();
 			}
+			else if (result.equals("SUCCESS") && !(tLat.equals("N/A")) && !(tLon.equals("N/A"))) 
+			{
+				Toast.makeText(getActivity().getApplicationContext(), 
+						"Location Update", Toast.LENGTH_LONG).show();
+				updateTargetRadius(Double.parseDouble(tLat), Double.parseDouble(tLon));
+			}
 			else if(result.equals("ATTEMPTCAPTURE"))
 			{
+				updateTargetRadius(Double.parseDouble(tLat), Double.parseDouble(tLon));
 				alertDialog = new AlertDialog.Builder(getActivity()).create();  
 				alertDialog.setTitle("CAPTURE TARGET");  
 				alertDialog.setMessage("00:05");
@@ -417,15 +437,30 @@ public class GameActivity extends Fragment implements LocationListener, Location
 			}
 			else if(result.equals("CAPTURETHREAT"))
 			{
-				Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-				v.vibrate(500);
-				
-				escape = new escapeCapture();
-				escape.execute();
-			}
-			else if(result.equals("TARGETFOUND"))
-			{
-				
+				alertDialog = new AlertDialog.Builder(getActivity()).create();  
+				alertDialog.setTitle("ESCAPE!");  
+				alertDialog.setMessage("00:05");
+				alertDialog.show();   
+
+				new CountDownTimer(5000, 1000) 
+				{
+					@Override
+					public void onTick(long millisUntilFinished) 
+					{
+						alertDialog.setMessage("00:"+ (millisUntilFinished/1000));
+						Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+						v.vibrate(500);
+					}
+
+					@Override
+					public void onFinish() 
+					{
+						escape = new escapeCapture();
+						escape.execute();
+						alertDialog.dismiss();
+						//info.setVisibility(View.GONE);
+					}
+				}.start();
 			}
 			else 
 			{
